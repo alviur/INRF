@@ -1,10 +1,5 @@
 import sys, os
-
-sys.path.append('/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/testRobustness')
-sys.path.append('/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/')
-
 from load_trained_models_MNIST import load_cnnMNIST
-
 # Imports PyTorch, Numpy, etc
 import torch
 import torchvision
@@ -22,7 +17,7 @@ from art.attacks import CarliniL2Method, CarliniLInfMethod
 from art.classifiers import PyTorchClassifier
 from art.utils import load_mnist
 
-filepath = '/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/testRobustness/Models/CNN_MNIST_046.pth'
+filepath = '../../2_models/CNN_MNIST_046.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 net = load_cnnMNIST(device, filepath)
@@ -56,33 +51,33 @@ accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) /
 print("Accuracy on benign test examples: {}%".format(accuracy * 100))
 
 # Begin FGSM - Attack
-#
-# for epsilon in np.arange(0.1, 0.6, 0.1):
-#     t = time.time()
-#     # Generate adversarial test examples
-#     attack = FastGradientMethod(classifier=classifier, eps=epsilon, eps_step=0.05, minimal=True)
-#     x_test_adv = attack.generate(x=x_test)
-#     print(time.time() - t)
-#     # Evaluate the ART classifier on adversarial test examples
-#
-#     predictions = classifier.predict(x_test_adv)
-#     accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-#     print("Accuracy on adversarial test examples for eps={}: {}".format(epsilon, accuracy * 100))
-#
+
+for epsilon in np.arange(0.1, 0.6, 0.1):
+    t = time.time()
+    # Generate adversarial test examples
+    attack = FastGradientMethod(classifier=classifier, eps=epsilon, eps_step=0.05, minimal=True)
+    x_test_adv = attack.generate(x=x_test)
+    print(time.time() - t)
+    # Evaluate the ART classifier on adversarial test examples
+
+    predictions = classifier.predict(x_test_adv)
+    accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
+    print("Accuracy on adversarial test examples for eps={}: {}".format(epsilon, accuracy * 100))
+
 # End FGSM - Attack
 
-# # Begin DeepFool Attack
-# t = time.time()
-# # Generate adversarial test examples
-# attack = DeepFool(classifier=classifier)
-# x_test_adv = attack.generate(x=x_test)
-# print(time.time() - t)
-#
-# # Evaluate the ART classifier on adversarial test examples
-# predictions = classifier.predict(x_test_adv)
-# accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-# print("Accuracy on adversarial test examples for DeepFool: {} %".format(accuracy * 100))
-# # End DeepFool
+# Begin DeepFool Attack
+t = time.time()
+# Generate adversarial test examples
+attack = DeepFool(classifier=classifier)
+x_test_adv = attack.generate(x=x_test)
+print(time.time() - t)
+
+# Evaluate the ART classifier on adversarial test examples
+predictions = classifier.predict(x_test_adv)
+accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
+print("Accuracy on adversarial test examples for DeepFool: {} %".format(accuracy * 100))
+# End DeepFool
 
 # Begin Carlini-L2
 t = time.time()

@@ -1,8 +1,5 @@
 import sys, os
 
-sys.path.append('/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/testRobustness')
-sys.path.append('/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/')
-
 from load_trained_models_CIFAR10 import load_cnnCIFAR10
 
 # Imports PyTorch, Numpy, etc
@@ -22,7 +19,7 @@ from art.attacks import FastGradientMethod
 from art.classifiers import PyTorchClassifier
 from art.utils import load_dataset
 
-filepath = '/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/testRobustness/Models/CIFAR10_CNN_24.28.pth'
+filepath = '../../2_models/CIFAR10_CNN_24.28.pth'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 net = load_cnnCIFAR10(device, filepath)
@@ -69,40 +66,40 @@ for epsilon in np.arange(0.02, 0.16, 0.02):
 # end FGSM
 
 # Begin DeepFool Attack
-# t = time.time()
-# # Generate adversarial test examples
-# attack = DeepFool(classifier=classifier)
-# x_test_adv = attack.generate(x=x_test)
-# print(time.time() - t)
-#
-# # Evaluate the ART classifier on adversarial test examples
-# predictions = classifier.predict(x_test_adv)
-# accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-# print("Accuracy on adversarial test examples for DeepFool: {} %".format(accuracy * 100))
+t = time.time()
+# Generate adversarial test examples
+attack = DeepFool(classifier=classifier)
+x_test_adv = attack.generate(x=x_test)
+print(time.time() - t)
+
+# Evaluate the ART classifier on adversarial test examples
+predictions = classifier.predict(x_test_adv)
+accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
+print("Accuracy on adversarial test examples for DeepFool: {} %".format(accuracy * 100))
 # End DeepFool
 
-# # Begin Carlini-L2
-# t = time.time()
-# # Generate adversarial test examples
-# attack = CarliniL2Method(classifier=classifier)
-# x_test_adv = attack.generate(x=x_test)
-# print(time.time() - t)
-#
-# # Evaluate the ART classifier on adversarial test examples
-# predictions = classifier.predict(x_test_adv)
-# accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-# print("Accuracy on adversarial test examples for Carlini-L2: {} %".format(accuracy * 100))
-# # End Carlini-L2
-#
-# # Begin Carlini-Linf
-# t = time.time()
-# # Generate adversarial test examples
-# attack = CarliniLInfMethod(classifier=classifier)
-# x_test_adv = attack.generate(x=x_test)
-# print(time.time() - t)
-#
-# # Evaluate the ART classifier on adversarial test examples
-# predictions = classifier.predict(x_test_adv)
-# accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
-# print("Accuracy on adversarial test examples for Carlini-Linf: {} %".format(accuracy * 100))
-# # End Carlini-Linf
+# Begin Carlini-L2
+t = time.time()
+# Generate adversarial test examples
+attack = CarliniL2Method(classifier=classifier)
+x_test_adv = attack.generate(x=x_test)
+print(time.time() - t)
+
+# Evaluate the ART classifier on adversarial test examples
+predictions = classifier.predict(x_test_adv)
+accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
+print("Accuracy on adversarial test examples for Carlini-L2: {} %".format(accuracy * 100))
+# End Carlini-L2
+
+# Begin Carlini-Linf
+t = time.time()
+# Generate adversarial test examples
+attack = CarliniLInfMethod(classifier=classifier)
+x_test_adv = attack.generate(x=x_test)
+print(time.time() - t)
+
+# Evaluate the ART classifier on adversarial test examples
+predictions = classifier.predict(x_test_adv)
+accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
+print("Accuracy on adversarial test examples for Carlini-Linf: {} %".format(accuracy * 100))
+# End Carlini-Linf

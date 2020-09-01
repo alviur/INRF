@@ -7,12 +7,13 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-import INRF2_loop_staticpq as INRF
+import INRF_loop_staticpq as INRF
 import torch
 import torchvision
 import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
+
 
 def load_cnnCIFAR10(device, filepath):
 
@@ -38,21 +39,6 @@ def load_cnnCIFAR10(device, filepath):
             self.avgpool = nn.AvgPool2d(8,8)
 
         def forward(self, x):
-
-            #print(1. / math.sqrt(self.conv1.weight.size(1)))
-
-            # I3N
-            '''x00 = self.pool(self.bn1(self.inrfLayer1.forward((x))))
-            x01 = self.bn2(self.inrfLayer2.forward((x00)))
-            x03 = self.pool(x01)
-            x04 = self.bn3(self.inrfLayer3.forward((x03)))
-            x05 = self.avgpool((x04))'''
-
-            '''x00 = self.pool(self.bn1(F.relu(self.inrfLayer1.forward((x)))))
-            x01 = self.bn2(F.relu(self.inrfLayer2.forward((x00))))
-            x03 = self.pool(x01)
-            x04 = self.bn3(F.relu(self.inrfLayer3.forward((x03))))
-            x05 = self.avgpool((x04))'''
             # CNN
 
             x00 = self.pool((self.bn1(F.relu(self.conv1((x))))))
@@ -98,15 +84,11 @@ def load_arc16_7(device, filepath):
 
         def forward(self, x):
 
-            #print(1. / math.sqrt(self.conv1.weight.size(1)))
-
-            # I3N
             x00 = self.pool(self.bn1(F.relu(self.inrfLayer1.forward((x)))))
             x01 = self.bn2(F.relu(self.inrfLayer2.forward((x00))))
             x03 = self.pool(x01)
             x04 = self.bn3(F.relu(self.inrfLayer3.forward((x03))))
             x05 = self.avgpool((x04))
-
 
             x = x05.view(-1, 192 )
             x = self.fc3(x)
