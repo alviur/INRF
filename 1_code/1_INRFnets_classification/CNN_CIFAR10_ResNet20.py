@@ -1,3 +1,12 @@
+######################################################################
+# Training code for CIFAR-10 dataset using ResNet-20 CNN version. All
+# parameters are taken from:
+#   He, K., Zhang, X., Ren, S. and Sun, J., 2016. Deep residual
+#   learning for image recognition. In Proceedings of the IEEE
+#   conference on computer vision and pattern recognition (pp.
+#   770-778).
+######################################################################
+
 # Libraries
 import numpy as np
 import cv2
@@ -11,13 +20,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import dataLoader_CIFAR10
 
-def imshow(img):
-    img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.savefig('CIFAR10_images.png')
-    #plt.show()
-
 
 # Hardware
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -27,7 +29,7 @@ patience = 7 # used to modify the learning rate
 patienceCont = 0
 bestTest = 50
 
-# Load CIFAR10 - https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+# Load CIFAR10
 train_loader, valid_loader = dataLoader_CIFAR10.get_train_valid_loader("./",
                            batch_size,
                            augment=True,
@@ -46,7 +48,7 @@ test_loader = dataLoader_CIFAR10.get_test_loader("./",
                     pin_memory=True,
                     normalizeF = True)
 
-
+# Path to save model
 fileName = '/home/agomez/4_NCNN/1_algorithms/CIFAR10_CNN_ResNet20_SGD.pth'
 
 # Architecture
@@ -112,7 +114,6 @@ class Net(nn.Module):
 
     def forward(self, x):
 
-        #print(1. / math.sqrt(self.conv1.weight.size(1)))
 
         x00 = F.relu(self.bn1(self.conv1(x)))
 
@@ -150,21 +151,7 @@ class Net(nn.Module):
 net = Net()
 net = net.to(device)
 
-def lr_schedule(epoch):
-    """Learning Rate Schedule
-    Learning rate is scheduled to be reduced after 80, 120, 160, 180 epochs.
-    Called automatically every epoch as part of callbacks during training.
-    """
-    lr = 1e-3
-    if epoch > 180:
-        lr *= 0.5e-3
-    elif epoch > 160:
-        lr *= 1e-3
-    elif epoch > 120:
-        lr *= 1e-2
-    elif epoch > 80:
-        lr *= 1e-1
-    return lr
+
 
 def lr_scheduleSGD(epoch):
     """Learning Rate Schedule
@@ -185,8 +172,6 @@ criterion = nn.CrossEntropyLoss()
 wd = 0.0003 # weight decay
 optimizer = optim.SGD(net.parameters(), lr=0.0, momentum=0.9, weight_decay=wd)
 
-#optimizer = optim.Adam(net.parameters(), lr=0.0, amsgrad = False)
-
 
 epochs = 200
 bestTest = 100
@@ -203,7 +188,6 @@ for epoch in range(epochs):  # loop over the dataset multiple times
 
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr_scheduleSGD(epoch)
-            #param_group['lr'] = lr_schedule(epoch)
 
         # get the inputs; data is a list of [inputs, labels]
         inputs0, labels0 = data
@@ -220,8 +204,7 @@ for epoch in range(epochs):  # loop over the dataset multiple times
 
         # Kernel L2 regularizer
         l2_reg = None
-        #reg_lambda = 1e-4
-        reg_lambda = 0
+        reg_lambda = 1e-4
         for W in net.parameters():
             if l2_reg is None:
                 l2_reg = W.norm(2)
@@ -288,6 +271,7 @@ for epoch in range(epochs):  # loop over the dataset multiple times
 # Test error best validation
 print("-------------------------------------------")
 print("Test error best validation")
+print("-------------------------------------------")
 PATH = fileName
 net = Net()
 net.load_state_dict(torch.load(PATH))

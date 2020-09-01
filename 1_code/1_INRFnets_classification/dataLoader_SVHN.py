@@ -1,8 +1,12 @@
+"""
+Create train, valid, test sets from SVHN dataset.
+"""
+
 import numpy as np
 import scipy.io as sio
 
 
-path= '/home/agomez/4_NCNN/3_data/'
+path= '/home/agomez/4_NCNN/3_data/'# Path to raw data
 
 train_raw = sio.loadmat(path + 'train_32x32.mat')
 test_raw = sio.loadmat(path + 'test_32x32.mat')
@@ -85,6 +89,7 @@ for i in range(train.shape[3]):
         trainingLabels[index] = trainLabels[i]
         index += 1
 
+# Swap axes for Pytorch use (batch size, channels, height, width)
 trainingSet = np.swapaxes(trainingSet,0,2)
 trainingSet = np.swapaxes(trainingSet,1,3)
 trainingSet = np.swapaxes(trainingSet,0,1)
@@ -97,8 +102,9 @@ test = np.swapaxes(test,0,2)
 test = np.swapaxes(test,1,3)
 test = np.swapaxes(test,0,1)
 
+# Save data as .npy
 np.save(path +'trainSVHN',trainingSet)
-np.save(path +'trainSVHN_labeks',trainingLabels)
+np.save(path +'trainSVHN_labels',trainingLabels)
 np.save(path +'valSVHN',valSet)
 np.save(path +'valSVHN_labels',valSetLabels)
 np.save(path +'testSVHN',test)

@@ -1,32 +1,20 @@
 #############################################################
-#
-#
+# Training code for CIFAR-10 dataset
 #############################################################
 
 # Libraries
 import numpy as np
-import cv2
 import matplotlib.pyplot as plt
 import INRF2_loop as INRF
 import torch
 import torchvision
-import torchvision.transforms as transforms
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import dataLoader_CIFAR10
 import time
 
-def imshow(img):
-    img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.savefig('CIFAR10_images.png')
-    #plt.show()
-
 
 start = time.time()
-
 
 # Hardware
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -36,10 +24,7 @@ patience = 7 # used to modify the learning rate
 patienceCont = 0
 bestTest = 50
 
-# Load CIFAR10 - https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-
-
-
+# Load CIFAR10
 train_loader, valid_loader = dataLoader_CIFAR10.get_train_valid_loader("./",
                            batch_size,
                            augment=False,
@@ -58,14 +43,7 @@ test_loader = dataLoader_CIFAR10.get_test_loader("./",
                     pin_memory=True,
                     normalizeF = False)
 
-
-# get some random training images
-dataiter = iter(train_loader)
-images, labels = dataiter.next()
-
-# show images
-imshow(torchvision.utils.make_grid(images))
-
+# Path to save model
 fileName = '/home/agomez/4_NCNN/1_algorithms/loop_arc2Cifar10_008_dp2_dp3.pth'
 
 # Architecture
@@ -75,11 +53,12 @@ class Net(nn.Module):
         self.inrfLayer1 = INRF.INRF(dimG=1, dimW=5, numChanIn=3, numChanOut=192, sigma=1, paramSigma=0.08, lambdaV = 2.0)
         self.inrfLayer2 = INRF.INRF(dimG=1, dimW=5, numChanIn=192, numChanOut=192, sigma=1, paramSigma=0.08, lambdaV= 2.0)
         self.inrfLayer3 = INRF.INRF(dimG=1, dimW=5, numChanIn=192, numChanOut=192, sigma=1, paramSigma=0.08, lambdaV=2.0)
-        #1. / math.sqrt(1)
 
+        '''# Uncomment for CNN
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=192, kernel_size=5, padding=(5 // 2, 5 // 2), bias=True)
         self.conv2 = nn.Conv2d(in_channels=192, out_channels=192, kernel_size=5, padding=(5 // 2, 5 // 2), bias=True)
         self.conv3 = nn.Conv2d(in_channels=192, out_channels=192, kernel_size=5, padding=(5 // 2, 5 // 2), bias=True)
+        '''
 
         self.pool = nn.MaxPool2d(2, 2)
         self.fc3 = nn.Linear(192, 10)
@@ -91,18 +70,16 @@ class Net(nn.Module):
         self.avgpool = nn.AvgPool2d(8,8)
 
     def forward(self, x):
-
-        #print(1. / math.sqrt(self.conv1.weight.size(1)))
-
         # I3N
         x00 = self.pool((self.inrfLayer1.forward((x))))
         x01 = self.dp2d2(self.inrfLayer2.forward((x00)))
         x03 = self.pool(x01)
         x04 = self.dp2d3(self.inrfLayer3.forward((x03)))
         x05 = self.avgpool((x04))
-        # CNN
 
-        '''x00 = self.pool(F.relu(self.conv1((x))))
+        # CNN
+        '''# Uncomment for CNN
+        x00 = self.pool(F.relu(self.conv1((x))))
         x01 = self.pool(F.relu(self.conv2((x00))))
         x2 =x01'''
 
@@ -119,12 +96,11 @@ net = net.to(device)
 
 # Optimizer
 criterion = nn.CrossEntropyLoss()
-#optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9)
 wd = 0.0 # weight decay
 optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=wd, amsgrad = True)
 
 
-epochs = 200
+epochs = 200 # Number of epochs
 bestTest = 100
 running_loss = 0
 validationVerbosity = 5
@@ -138,10 +114,8 @@ for epoch in range(epochs):  # loop over the dataset multiple times
         net.train()
         # get the inputs; data is a list of [inputs, labels]
         inputs0, labels0 = data
-
         inputs = inputs0.cuda()
         labels = labels0.cuda()
-
 
         # zero the parameter gradients
         optimizer.zero_grad()
@@ -227,12 +201,14 @@ for i, dataVal in enumerate(test_loader, 0):
 
 accCum = correctVal / totalVal
 print("-------------------------------")
-print("Test error:", 100 - 100 * accCum)
+print("Test error en of training:", 100 - 100 * accCum)
 print("-------------------------------")
 
 # Test error best validation
 print("-------------------------------------------")
-print("Test error best validation")
+print("Test error best validation accuracy")
+print("-------------------------------------------")
+
 PATH = fileName
 net = Net()
 net.load_state_dict(torch.load(PATH))

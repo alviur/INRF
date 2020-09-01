@@ -1,7 +1,14 @@
+######################################################################
+# Training code for CIFAR-10 dataset using ResNet-20 INRF version. All
+# parameters are taken from:
+#   He, K., Zhang, X., Ren, S. and Sun, J., 2016. Deep residual
+#   learning for image recognition. In Proceedings of the IEEE
+#   conference on computer vision and pattern recognition (pp.
+#   770-778).
+######################################################################
+
 # Libraries
 import numpy as np
-import cv2
-import matplotlib.pyplot as plt
 import INRF2_loop as INRF
 import torch
 import torchvision
@@ -11,14 +18,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 import dataLoader_CIFAR10
 
-def imshow(img):
-    img = img / 2 + 0.5     # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.savefig('CIFAR10_images.png')
-    #plt.show()
-
-
 # Hardware
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 batch_size = 128
@@ -27,7 +26,7 @@ patience = 7 # used to modify the learning rate
 patienceCont = 0
 bestTest = 50
 
-# Load CIFAR10 - https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+# Load CIFAR10
 train_loader, valid_loader = dataLoader_CIFAR10.get_train_valid_loader("./",
                            batch_size,
                            augment=True,
@@ -47,13 +46,13 @@ test_loader = dataLoader_CIFAR10.get_test_loader("./",
                     normalizeF = True)
 
 
-#fileName = '/home/agomez/4_NCNN/1_algorithms/CIFAR10_INRF2_ResNet20_1.1l.pth'
+# Path to save model
 fileName = '/home/agomez/4_NCNN/1_algorithms/CIFAR10_INRF2_ResNet20_SGD_128b_0.5l_0.001wd_ll.pth'
 
 lambdaINRF1s = 0.1
 lambdaINRF2s = 0.1
 lambdaINRF3s = 0.1
-initVal = 30
+initVal = 12
 
 # Architecture
 class Net(nn.Module):
@@ -157,25 +156,10 @@ class Net(nn.Module):
 net = Net()
 net = net.to(device)
 
-def lr_schedule(epoch):
-    """Learning Rate Schedule
-    Learning rate is scheduled to be reduced after 80, 120, 160, 180 epochs.
-    Called automatically every epoch as part of callbacks during training.
-    """
-    lr = 1e-3
-    if epoch > 180:
-        lr *= 0.5e-3
-    elif epoch > 160:
-        lr *= 1e-3
-    elif epoch > 120:
-        lr *= 1e-2
-    elif epoch > 80:
-        lr *= 1e-1
-    return lr
 
 def lr_scheduleSGD(epoch):
     """Learning Rate Schedule
-    Learning rate is scheduled to be reduced after 80, 120, 160, 180 epochs.
+    Learning rate is scheduled to be reduced after 90 and 135 epochs.
     Called automatically every epoch as part of callbacks during training.
     """
     lr = 0.1
@@ -189,9 +173,6 @@ def lr_scheduleSGD(epoch):
 criterion = nn.CrossEntropyLoss()
 wd = 0.003 # weight decay
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9, weight_decay=wd)
-
-#optimizer = optim.Adam(net.parameters(), lr=0.0, weight_decay=wd, amsgrad = True)
-
 
 epochs = 250
 bestTest = 100
@@ -245,13 +226,13 @@ for epoch in range(epochs):  # loop over the dataset multiple times
         correct += (predicted == labels.long()).sum().item()
 
 
-
     accCum = correct / total
     print("Epoch:",epoch,"- Loss:", running_loss / 703, " - Training error:",100 - 100 * accCum)
     running_loss = 0.0
     correct = 0
     total = 0
 
+    # Validation
     if epoch % validationVerbosity ==0:
 
         correctVal = 0
@@ -286,8 +267,6 @@ for epoch in range(epochs):  # loop over the dataset multiple times
             torch.save(net.state_dict(), PATH)
 
 # Test set
-
-
 correctVal = 0
 totalVal = 0
 for i, dataVal in enumerate(test_loader, 0):
@@ -312,7 +291,8 @@ print("-------------------------------")
 
 # Test error best validation
 print("-------------------------------------------")
-print("Test error best validation")
+print("Test error best validation accuracy")
+print("-------------------------------------------")
 PATH = fileName
 net = Net()
 net.load_state_dict(torch.load(PATH))

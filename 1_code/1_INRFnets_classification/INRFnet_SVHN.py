@@ -1,7 +1,7 @@
 #############################################################
-#
-#
+# Training code for SVHN dataset
 #############################################################
+
 
 # Libraries
 import numpy as np
@@ -20,23 +20,16 @@ import scipy.misc
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Load data
-path = '/home/agomez/4_NCNN/3_data/'
+path = '/home/agomez/4_NCNN/3_data/'# Path to data processed with dataLoader_SVHN.py
 
 train_images = np.load(path +'trainSVHN.npy')/255
-train_labels = np.load(path +'trainSVHN_labeks.npy')
+train_labels = np.load(path +'trainSVHN_labels.npy')
 val_images = np.load(path +'valSVHN.npy')/255
 val_labels = np.load(path +'valSVHN_labels.npy')
 test = np.load(path +'testSVHN.npy')/255
 testLabels = np.squeeze(np.load(path +'testSVHN_labels.npy'))
 
-#print("Data loaded!!",trainingSet.shape)
-
-
-'''scipy.misc.imsave('SVHN1.jpg', np.squeeze(trainingSet[0,0,:,:]))
-scipy.misc.imsave('SVHN2.jpg', np.squeeze(trainingSet[100,0,:,:]))
-scipy.misc.imsave('SVHN3.jpg', np.squeeze(trainingSet[1000,0,:,:]))'''
-
-#fileName = '/home/agomez/4_NCNN/1_algorithms/SVHN_CNN.pth'
+# Path to save model
 fileName = '/home/agomez/4_NCNN/1_algorithms/SVHN_INRF.pth'
 
 # Architecture
@@ -47,7 +40,7 @@ class Net(nn.Module):
         self.inrfLayer2 = INRF.INRF(dimG=1, dimW=5, numChanIn=192, numChanOut=192, sigma=1, paramSigma=100, lambdaV= 1.0)
         self.inrfLayer3 = INRF.INRF(dimG=1, dimW=5, numChanIn=192, numChanOut=192, sigma=1, paramSigma=100, lambdaV=1.0)
 
-        # ConvNet
+        # ConvNet # Uncomment for CNN version
         '''self.conv1 = nn.Conv2d(in_channels=3, out_channels=192, kernel_size=5, padding=(5 // 2, 5 // 2), bias=True)
         self.conv2 = nn.Conv2d(in_channels=192, out_channels=192, kernel_size=5, padding=(5 // 2, 5 // 2), bias=True)
         self.conv3 = nn.Conv2d(in_channels=192, out_channels=192, kernel_size=5, padding=(5 // 2, 5 // 2), bias=True)'''
@@ -72,7 +65,7 @@ class Net(nn.Module):
         x04 = self.bn3(F.relu(self.inrfLayer3.forward((x03))))
         x05 = self.avgpool((x04))
 
-        # ConvNet
+        # ConvNet # Uncomment for CNN version
         '''x00 = self.pool((self.bn1(F.relu(self.conv1((x))))))
         x01 = self.bn2(F.relu(self.conv2((x00))))
         x03 = self.pool(x01)
@@ -93,26 +86,22 @@ net = net.to(device)
 
 # Optimizer
 criterion = nn.CrossEntropyLoss()
-#optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9)
-wd = 0.00000 # weight decay
+wd = 0.00003 # weight decay
 optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=wd, amsgrad = True)
 
 batch_size = 64
 trainingImag =598388
-training_iters = (trainingImag)*100
+training_iters = (trainingImag)*100 # Equivalent to 200 epochs
 display_step = 200
 step = 1
 bestTest = 100
 batchCont = 0
 patienceCont1 = 0
-# Keep training until reach max iterations
 running_loss = 0
 test_step = 200000
 batch = 0
 while step * batch_size < training_iters:
     net.train()
-    # batch_x, batch_y = mnist.train.next_batch(batch_size)
-
     if (batchCont + batch_size < trainingImag):
 
         batch_x = train_images[batchCont:batchCont + batch_size, :]
@@ -158,7 +147,6 @@ while step * batch_size < training_iters:
     step += 1
 
     if step * batch_size > test_step:
-    #if step * batch_size > 10:
 
         test_step += 200000
 
@@ -256,7 +244,7 @@ while step * batch_size < training_iters:
         print("Testing error:", 100 - 100 * accCum)
         print("==================================")
 
-# Test error
+# Test error best validation accuracy
 PATH = fileName
 net = Net()
 net.load_state_dict(torch.load(PATH))
@@ -299,5 +287,7 @@ while batchTest < testSize:
 
 print(correct,total)
 accCum = correct / total
+print("==================================")
 print("Testing error:", 100 - 100 * accCum)
+print("==================================")
 

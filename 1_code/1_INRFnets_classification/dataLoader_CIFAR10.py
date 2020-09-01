@@ -154,9 +154,9 @@ def get_test_loader(data_dir,
     - data_loader: test set iterator.
     """
     normalize = transforms.Normalize(
-        #mean=[0.4913997551666284, 0.48215855929893703, 0.4465309133731618],
+        #mean=[0.4913997551666284, 0.48215855929893703, 0.4465309133731618],# mean used in ResNet paper
         mean=[0.5, 0.5, 0.5],
-        #std=[0.24703225141799082, 0.24348516474564, 0.26158783926049628]
+        #std=[0.24703225141799082, 0.24348516474564, 0.26158783926049628]# stg used in ResNet paper
         std = [1, 1, 1]
     )
 
