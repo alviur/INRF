@@ -1,5 +1,5 @@
 import sys, os
-from load_trained_models_MNIST import load_cnnMNIST
+from load_trained_CNN_MNIST import load_cnnMNIST
 # Imports PyTorch, Numpy, etc
 import torch
 import torchvision
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import time
 
 # Imports ART
-from art.attacks import CarliniL2Method, CarliniLInfMethod
+from art.attacks import FastGradientMethod, DeepFool, CarliniL2Method, CarliniLInfMethod
 from art.classifiers import PyTorchClassifier
 from art.utils import load_mnist
 

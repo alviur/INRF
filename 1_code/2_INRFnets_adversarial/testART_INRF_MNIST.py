@@ -1,9 +1,6 @@
 import sys, os
 
-sys.path.append('/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/testRobustness')
-sys.path.append('/home/amartinf/PycharmProjects/ncnn/Pytorch/hands_on/')
-
-from load_trained_models_MNIST import load_arc_043_ReLu
+from load_trained_INRF_MNIST import load_arc_043_ReLu
 
 # Imports PyTorch, Numpy, etc
 import torch

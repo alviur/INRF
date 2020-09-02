@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import time
 
 # Imports ART
-from art.attacks import FastGradientMethod
+from art.attacks import FastGradientMethod, DeepFool, CarliniL2Method, CarliniLInfMethod
 from art.classifiers import PyTorchClassifier
 from art.utils import load_dataset
 
