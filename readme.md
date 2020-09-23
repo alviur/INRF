@@ -30,4 +30,11 @@ If you use these models in your research, please cite:
 
 # License
 
-??? MIT?
+
+INRFnet is a copyrighted work of Universitat Pompeu Fabra, (the "Software"). 
+
+The INRF, is the methodology underlying the INRFnet and has been the object of a Patent Application filed before the European Patent Office, with number  P19750EP00, (the "Method").  
+
+All rights over the Method and the Software are reserved to Universitat Pompeu Fabra. Therefore it is not possible to execute, reproduce, produce, transform, communicate, sell, or use them in any form or mean, except for those limitations established by Law. The use for non-commercial academic research is authorized, with the obligation to mention the ownership, and its authors and inventors. Other uses are expressly forbidden.
+
+If you are interested in obtaining a license, please contact Marcelo Bertalmío at marcelo.bertalmio@upf.edu.
