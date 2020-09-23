@@ -1,6 +1,8 @@
 # Evidence for the intrinsically nonlinear nature of receptive fields in vision
 
-This is the repository for the paper: "Evidence for the intrinsically nonlinear nature of receptive fields in vision"
+This is the repository for the artificial neural networks experiments described in "Evidence for the intrinsically 
+nonlinear nature of receptive fields in vision" paper (see citation).
+
 
 # Dependencies
 - Python 3.5.2
@@ -9,8 +11,7 @@ This is the repository for the paper: "Evidence for the intrinsically nonlinear 
  - [Adversarial-robustness-toolbox 1.2.0](https://github.com/Trusted-AI/adversarial-robustness-toolbox)
 
 # Instructions 
-1_INRFnets_classification: Contain a script for each reported dataset accuracy. A CNN version of ech architecture in included as a commented 
- section.
+1_INRFnets_classification: Contains a script for the accuracy on each reported dataset . A CNN version of each architecture is included as a commented-out section.
  
 2_INRFnets_adversarial: Contains all the experiments on adversarial  attacks. Contains scripts to run a series of adversarial attacks over the CNN and INRF models trained in MNIST and CIFAR-10. 
 
