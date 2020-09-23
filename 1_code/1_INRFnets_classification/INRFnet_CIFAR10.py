@@ -5,7 +5,7 @@
 # Libraries
 import numpy as np
 import matplotlib.pyplot as plt
-import INRF2_loop as INRF
+import INRF_loop as INRF
 import torch
 import torchvision
 import torch.nn as nn

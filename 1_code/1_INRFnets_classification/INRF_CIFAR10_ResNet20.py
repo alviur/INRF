@@ -9,7 +9,7 @@
 
 # Libraries
 import numpy as np
-import INRF2_loop as INRF
+import INRF_loop as INRF
 import torch
 import torchvision
 import torchvision.transforms as transforms
